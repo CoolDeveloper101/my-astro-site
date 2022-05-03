@@ -1,0 +1,26 @@
+name: Deploy
+on: [push]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Needed for auth with Deno Deploy
+      contents: read # Needed to clone the repository
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      # TODO(CoolDeveloper101): add a build step here
+
+      - name: Build
+        run: npm install && npm run build
+
+      - name: Upload to Deno Deploy
+        uses: denoland/deployctl@v1
+        with:
+          project: "my-astro-site"
+          entrypoint: "./server/entry.mjs" # TODO(CoolDeveloper101): update
+          root: dist
