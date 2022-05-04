@@ -1,0 +1,49 @@
+---
+import { initializeApp } from "firebase/app";
+import { getFirestore, addDoc, collection } from "firebase/firestore";
+
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAgmdp7YVt8b1sSWm6_9iWyhZ_RDPXOfcI",
+  authDomain: "formify-0.firebaseapp.com",
+  projectId: "formify-0",
+  storageBucket: "formify-0.appspot.com",
+  messagingSenderId: "1077988505387",
+  appId: "1:1077988505387:web:c0a7e817abfcd7c85f376e"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+interface Params {
+  id?: string;
+}
+
+
+// const { id } = Astro.params as Params;
+// if (id.length !== 20) {
+// 	return new Response("Form not found!", {
+// 		status: 404
+// 	})
+// }
+
+if (Astro.request.method == "POST") {
+  const data = await Astro.request.formData();
+  await addDoc(collection(db, "my_collection"), {
+    name: data.get("name"),
+    age: data.get("age")
+  })
+}
+---
+<div>
+	<h1>{ Astro.request.method }</h1>
+	<form method="POST">
+		<input type="text" name="name">
+		<input type="number" name="age">
+		<input type="submit" value="Submit">
+	</form>
+</div>
