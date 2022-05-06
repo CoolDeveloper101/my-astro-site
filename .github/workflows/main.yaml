@@ -11,9 +11,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v2
-
-      # TODO(CoolDeveloper101): add a build step here
+        uses: actions/checkout@v3
 
       - name: Build
         run: npm install && npm run build
@@ -22,5 +20,5 @@ jobs:
         uses: denoland/deployctl@v1
         with:
           project: "my-astro-site"
-          entrypoint: "./server/entry.mjs" # TODO(CoolDeveloper101): update
+          entrypoint: "./server/entry.mjs"
           root: dist
