@@ -1,19 +1,9 @@
 ---
+import firebaseConfig from '../../../firebase.config.json'
+import { Form, Fields } from '../../utility/fields';
 import { initializeApp } from "firebase/app";
-import { getFirestore, addDoc, collection } from "firebase/firestore";
+import { getFirestore, addDoc, collection, doc, getDoc } from "firebase/firestore";
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAgmdp7YVt8b1sSWm6_9iWyhZ_RDPXOfcI",
-  authDomain: "formify-0.firebaseapp.com",
-  projectId: "formify-0",
-  storageBucket: "formify-0.appspot.com",
-  messagingSenderId: "1077988505387",
-  appId: "1:1077988505387:web:c0a7e817abfcd7c85f376e"
-};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -24,26 +14,42 @@ interface Params {
 }
 
 
-// const { id } = Astro.params as Params;
-// if (id.length !== 20) {
-// 	return new Response("Form not found!", {
-// 		status: 404
-// 	})
-// }
+const { id } = Astro.params as Params;
+const docRef = doc(db, "forms", id)
+const docSnap = await getDoc(docRef);
+
+if (!docSnap.exists()) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Form not found!'
+  });
+}
+
 
 if (Astro.request.method == "POST") {
   const data = await Astro.request.formData();
-  await addDoc(collection(db, "my_collection"), {
-    name: data.get("name"),
-    age: data.get("age")
-  })
+  const firebaseData = {}
+  for (var [key, value] of data.entries()) {
+    firebaseData[key] = value;
+  }
+  await addDoc(collection(db, "forms", id, 'submissions'), firebaseData);
 }
+
+const form = docSnap.data() as Form;
 ---
-<div>
-	<h1>{ Astro.request.method }</h1>
-	<form method="POST">
-		<input type="text" name="name">
-		<input type="number" name="age">
-		<input type="submit" value="Submit">
-	</form>
-</div>
+{ Astro.request.method == 'GET' &&
+<form method="POST">
+  { form.fields.map((field) => {
+    return (
+      <label>{field.title}
+        <input type={field.type} name={field.name} />
+      </label>
+      <br />
+    )
+  }) }
+  <input type="submit" />
+</form>
+}
+{ Astro.request.method == 'POST' &&  
+<h1>Form submitted successfully</h1>
+}
